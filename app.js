@@ -132,13 +132,10 @@ function fetch_job() {
                         console.debug(`fetchTicker ex: ${exName}, ${ticker} cost:${timestamp - startTime}ms, value:${value}`);
                         const tickerArray = ticker.toLowerCase().split('/');
                         const name = exName + '_' + tickerArray[0] + "_" + tickerArray[1];
-
                         updateVarIntoFormula(name, value, timestamp, timeout);
                     }
-
-                    // console.info(`ex: ${exName}, ticker:${ticker}, result:${JSON.stringify(result)}`);
                 }).catch((error) => {
-                    console.error(`ex: ${exName}, ticker:${ticker}, result:${error.message}`);
+                    console.error(`fetchTicker error : ex: ${exName}, ticker:${ticker}, result:${error.message}`);
                 })
             });
         })
