@@ -46,9 +46,7 @@ function updateVarsIntoFormula(variables) {
         return;
     }
 
-    let body = {
-        variables: variables
-    };
+    let body = {variables: variables};
 
     const url = formula_host + "/api/v1/formula/variables/update";
 
@@ -108,9 +106,10 @@ function fetchFiatRate() {
             });
 
             updateVarsIntoFormula(variables);
-        }).catch((error) => {
-        console.error(`fetchFiatRate failure host:${fiat_rate_host}, error:${error.message}`);
-    });
+        })
+        .catch((error) => {
+            console.error(`fetchFiatRate failure host:${fiat_rate_host}, error:${error.message}`);
+        });
 }
 
 function fetch_job() {
@@ -124,19 +123,24 @@ function fetch_job() {
 
             tickers.forEach((ticker) => {
                 const startTime = Date.now();
-                ccxtMap[exName].fetchTicker(ticker).then((result) => {
-                    const timestamp = Date.now();
+                ccxtMap[exName]
+                    .fetchTicker(ticker)
+                    .then((result) => {
+                        const timestamp = Date.now();
 
-                    const value = result['last'];
-                    if (value) {
-                        console.debug(`fetchTicker ex: ${exName}, ${ticker} cost:${timestamp - startTime}ms, value:${value}`);
-                        const tickerArray = ticker.toLowerCase().split('/');
-                        const name = exName + '_' + tickerArray[0] + "_" + tickerArray[1];
-                        updateVarIntoFormula(name, value, timestamp, timeout);
-                    }
-                }).catch((error) => {
-                    console.error(`fetchTicker error : ex: ${exName}, ticker:${ticker}, result:${error.message}`);
-                })
+                        const value = result['last'];
+                        if (value) {
+
+                            console.debug(`fetchTicker ex: ${exName}, ${ticker} cost:${timestamp - startTime}ms, value:${value}`);
+
+                            const tickerArray = ticker.toLowerCase().split('/');
+                            const name = exName + '_' + tickerArray[0] + "_" + tickerArray[1];
+                            updateVarIntoFormula(name, value, timestamp, timeout);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error(`fetchTicker error : ex: ${exName}, ticker:${ticker}, result:${error.message}`);
+                    })
             });
         })
     }
