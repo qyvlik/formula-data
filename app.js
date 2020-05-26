@@ -122,7 +122,6 @@ function fetch_job() {
 
             tickers.forEach((ticker) => {
                 const startTime = Date.now();
-                console.info("exName:", exName);
                 ccxtMap[exName]
                     .fetchTicker(ticker)
                     .then((result) => {
