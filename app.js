@@ -159,19 +159,22 @@ function fetch_tickers() {
         Object.keys(tickers).forEach((key) => {
             let ticker = tickers[key];
             let symbol = ticker.symbol;
-            let marketInfo = marketMap[symbol];
-            if (marketInfo && marketInfo.spot) {
-                let symbolArray = ticker.symbol.split("/");
-                const name = exName + '_' + symbolArray[0] + "_" + symbolArray[1];
-                let last = ticker['last'];
-                if (last) {
-                    vars.push({
-                        'name': name,
-                        'value': ticker['last'],
-                        'timestamp': Date.now(),
-                        'timeout': timeout
-                    })
-                }
+            if (!symbol.includes('/')) {
+                return;
+            }
+            let symbolArray = symbol.split("/");
+            if (symbolArray.length !== 2) {
+                return;
+            }
+            const name = exName + '_' + symbolArray[0] + "_" + symbolArray[1];
+            let last = ticker['last'];
+            if (last) {
+                vars.push({
+                    'name': name,
+                    'value': ticker['last'],
+                    'timestamp': Date.now(),
+                    'timeout': timeout
+                })
             }
         });
 
