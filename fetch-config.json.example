@@ -3,7 +3,7 @@
     "upbit": [
       "BTC/KRW", "BCH/KRW", "ETH/KRW", "EOS/KRW", "XRP/KRW"
     ],
-    "okex3": [
+    "okex": [
       "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
     ],
     "binance": [

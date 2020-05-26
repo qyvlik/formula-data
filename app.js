@@ -5,13 +5,12 @@ require('dotenv').config();
 const ccxt = require('ccxt');
 const fetch = require('node-fetch');
 const schedule = require('node-schedule');
+const HttpsProxyAgent = require('https-proxy-agent');
 
 function requestMethod(url, options) {
     if (process.env['ENABLE_HTTP_PROXY'] === 'true') {
-        const HttpsProxyAgent = require('https-proxy-agent');
         const proxy = process.env['MY_HTTP_PROXY'] || "http://127.0.0.1:1087";
         const agent = new HttpsProxyAgent(proxy);
-
         return fetch(url, Object.assign({}, options, {agent: agent}));
     } else {
         return fetch(url, Object.assign({}, options, {}));
@@ -123,6 +122,7 @@ function fetch_job() {
 
             tickers.forEach((ticker) => {
                 const startTime = Date.now();
+                console.info("exName:", exName);
                 ccxtMap[exName]
                     .fetchTicker(ticker)
                     .then((result) => {
