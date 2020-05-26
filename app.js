@@ -32,7 +32,7 @@ for (let exIndex in ccxt.exchanges) {
     }
 }
 
-function updateVarsIntoFormula(variables) {
+async function updateVarsIntoFormula(variables) {
     const formula_host = process.env['FORMULA_HOST'];
     if (!formula_host) {
         console.error("updateVarIntoFormula failure : env `FORMULA_HOST` not exist");
@@ -49,16 +49,14 @@ function updateVarsIntoFormula(variables) {
 
     const url = formula_host + "/api/v1/formula/variables/update";
 
-    fetch(url, {
+    return await fetch(url, {
         method: 'post',
         body: JSON.stringify(body),
         headers: {
             'Content-Type': 'application/json',
             'token': formula_token
         },
-    }).catch((error) => {
-        console.error(`updateVarIntoFormula failure host:${formula_host}, error:${error.message}`);
-    });
+    })
 }
 
 function updateVarIntoFormula(name, value, timestamp, timeout) {
@@ -69,6 +67,13 @@ function updateVarIntoFormula(name, value, timestamp, timeout) {
         'timeout': timeout
     }]);
 }
+
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
+}
+
 
 function fetchFiatRate() {
     // See [qyvlik/fiat-exchange-rates](https://github.com/qyvlik/fiat-exchange-rates)
@@ -111,45 +116,71 @@ function fetchFiatRate() {
         });
 }
 
-function fetch_job() {
-    const fetch_tickers = require('./fetch-config.json');
-    const cron = process.env['CRON_EXPRESSION'] || '0/3 * * * * ?';
+function fetch_tickers() {
     const timeout = process.env['FORMULA_TIMEOUT'] || 5 * 60 * 1000;              // unit is ms
 
-    function fetch_ticker() {
-        Object.keys(fetch_tickers.exchanges).forEach((exName) => {
-            let tickers = fetch_tickers.exchanges[exName];
+    Object.keys(ccxtMap).forEach(async (exName) => {
+        let exObj = ccxtMap[exName];
 
-            tickers.forEach((ticker) => {
-                const startTime = Date.now();
-                ccxtMap[exName]
-                    .fetchTicker(ticker)
-                    .then((result) => {
-                        const timestamp = Date.now();
+        if (typeof exObj === 'undefined') {
+            return;
+        }
 
-                        const value = result['last'];
-                        if (value) {
-
-                            console.debug(`fetchTicker ex: ${exName}, ${ticker} cost:${timestamp - startTime}ms, value:${value}`);
-
-                            const tickerArray = ticker.toLowerCase().split('/');
-                            const name = exName + '_' + tickerArray[0] + "_" + tickerArray[1];
-                            updateVarIntoFormula(name, value, timestamp, timeout);
-                        }
-                    })
-                    .catch((error) => {
-                        console.error(`fetchTicker error : ex: ${exName}, ticker:${ticker}, result:${error.message}`);
-                    })
+        let tickers = {};
+        if (exObj.has["fetchTickers"]) {
+            try {
+                console.debug(`${exName} fetchTickers`);
+                tickers = await exObj.fetchMarkets();
+            } catch (error) {
+                console.error(`${exName} fetchTickers failure : ${error.message}`);
+            }
+        } else {
+            let marketList = await exObj.fetchMarkets();
+            await asyncForEach(marketList, async (market) => {
+                try {
+                    console.debug(`${exName} fetchTicker ${market.symbol}`);
+                    tickers[market.symbol] = await exObj.fetchTicker(market.symbol);
+                } catch (error) {
+                    console.error(`${exName} fetchTicker ${market.symbol} failure : ${error.message}`);
+                }
             });
-        })
-    }
+        }
 
-    schedule.scheduleJob(cron, () => {
-        fetch_ticker();
+        let vars = [];
+        Object.keys(tickers).forEach((key) => {
+            let ticker = tickers[key];
+            let symbolArray = ticker.symbol.split("/");
+            const name = exName + '_' + symbolArray[0] + "_" + symbolArray[1];
+            vars.push({
+                'name': name,
+                'value': ticker['last'],
+                'timestamp': Date.now(),
+                'timeout': timeout
+            })
+        });
 
-        fetchFiatRate();
+        try {
+            await updateVarsIntoFormula(vars);
+        } catch (error) {
+            console.error(`${exName} updateVarsIntoFormula failure: ${error.message}`);
+        }
     });
 }
 
-fetch_job();
+function fetch_job() {
+    const cron = process.env['CRON_EXPRESSION'] || '0/3 * * * * ?';
+    schedule.scheduleJob(cron, () => {
+        fetch_tickers();
+
+        // fetchFiatRate();
+    });
+}
+
+
+(async () => {
+    fetch_job();
+
+    // init when startup
+    fetch_tickers();
+})();
 
