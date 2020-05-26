@@ -1,16 +1,8 @@
 {
-  "exchanges":{
-    "upbit": [
-      "BTC/KRW", "BCH/KRW", "ETH/KRW", "EOS/KRW", "XRP/KRW"
-    ],
-    "okex": [
-      "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
-    ],
-    "binance": [
-      "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
-    ],
-    "huobipro": [
-      "USDT/HUSD", "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
-    ]
-  }
+  "exchanges": [
+    "binance",
+    "huobipro",
+    "okex",
+    "upbit"
+  ]
 }

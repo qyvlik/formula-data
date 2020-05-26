@@ -32,6 +32,8 @@ for (let exIndex in ccxt.exchanges) {
     }
 }
 
+const fetchConfig = require('./fetch-config.json');
+
 async function updateVarsIntoFormula(variables) {
     const formula_host = process.env['FORMULA_HOST'];
     if (!formula_host) {
@@ -120,17 +122,24 @@ function fetch_tickers() {
     const timeout = process.env['FORMULA_TIMEOUT'] || 5 * 60 * 1000;              // unit is ms
 
     Object.keys(ccxtMap).forEach(async (exName) => {
+
+        if (!fetchConfig.exchanges.includes(exName)) {
+            return;
+        }
+
         let exObj = ccxtMap[exName];
 
         if (typeof exObj === 'undefined') {
             return;
         }
 
+        let marketMap = await exObj.loadMarkets(true);
+
         let tickers = {};
         if (exObj.has["fetchTickers"]) {
             try {
                 console.debug(`${exName} fetchTickers`);
-                tickers = await exObj.fetchMarkets();
+                tickers = await exObj.fetchTickers();
             } catch (error) {
                 console.error(`${exName} fetchTickers failure : ${error.message}`);
             }
@@ -149,14 +158,21 @@ function fetch_tickers() {
         let vars = [];
         Object.keys(tickers).forEach((key) => {
             let ticker = tickers[key];
-            let symbolArray = ticker.symbol.split("/");
-            const name = exName + '_' + symbolArray[0] + "_" + symbolArray[1];
-            vars.push({
-                'name': name,
-                'value': ticker['last'],
-                'timestamp': Date.now(),
-                'timeout': timeout
-            })
+            let symbol = ticker.symbol;
+            let marketInfo = marketMap[symbol];
+            if (marketInfo && marketInfo.spot) {
+                let symbolArray = ticker.symbol.split("/");
+                const name = exName + '_' + symbolArray[0] + "_" + symbolArray[1];
+                let last = ticker['last'];
+                if (last) {
+                    vars.push({
+                        'name': name,
+                        'value': ticker['last'],
+                        'timestamp': Date.now(),
+                        'timeout': timeout
+                    })
+                }
+            }
         });
 
         try {
