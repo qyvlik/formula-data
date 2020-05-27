@@ -191,7 +191,7 @@ function fetch_job() {
     schedule.scheduleJob(cron, () => {
         fetch_tickers();
 
-        // fetchFiatRate();
+        fetchFiatRate();
     });
 }
 

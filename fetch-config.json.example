@@ -3,6 +3,7 @@
     "binance",
     "huobipro",
     "okex",
-    "upbit"
+    "upbit",
+    "kraken"
   ]
 }
