@@ -61,15 +61,6 @@ async function updateVarsIntoFormula(variables) {
     })
 }
 
-function updateVarIntoFormula(name, value, timestamp, timeout) {
-    updateVarsIntoFormula([{
-        'name': name,
-        'value': value,
-        'timestamp': timestamp,
-        'timeout': timeout
-    }]);
-}
-
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
         await callback(array[index], index, array);
