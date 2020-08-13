@@ -31,20 +31,13 @@ FIAT_TIMEOUT=14400000
 
 ```json
 {
-  "exchanges":{
-    "upbit": [
-      "BTC/KRW", "BCH/KRW", "ETH/KRW", "EOS/KRW", "XRP/KRW"
-    ],
-    "okex3": [
-      "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
-    ],
-    "binance": [
-      "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
-    ],
-    "huobipro": [
-      "USDT/HUSD", "BTC/USDT", "BCH/USDT", "ETH/USDT", "EOS/USDT", "XRP/USDT"
-    ]
-  }
+  "exchanges": [
+    "binance",
+    "huobipro",
+    "okex",
+    "upbit",
+    "kraken"
+  ]
 }
 ```
 

@@ -133,8 +133,6 @@ function fetch_tickers() {
             return;
         }
 
-        let marketMap = await exObj.loadMarkets(true);
-
         let tickers = {};
         if (exObj.has["fetchTickers"]) {
             try {

@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/qyvlik/formula-data#readme",
   "dependencies": {
-    "ccxt": "^1.28.62",
+    "ccxt": "^1.33.4",
     "dotenv": "^8.2.0",
     "https-proxy-agent": "^2.2.4",
     "node-fetch": "^2.6.0",
