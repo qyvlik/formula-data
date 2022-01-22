@@ -23,7 +23,7 @@
     "ccxt": "^1.33.4",
     "dotenv": "^8.2.0",
     "https-proxy-agent": "^2.2.4",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "node-schedule": "^1.3.2"
   }
 }
